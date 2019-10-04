@@ -8,3 +8,4 @@ jupyter nbextension enable hide_input/main
 jupyter nbextension enable hide_input_all/main
 
 jupyter trust Test_Interact.ipynb
+jupyter trust Open_Data_By_The_Numbers.ipynb
