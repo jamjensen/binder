@@ -4,5 +4,6 @@ jupyter nbextensions_configurator enable
 
 jupyter nbextension enable collapsible_headings/main
 jupyter nbextension enable init_cell/main
+jupyter nbextension enable hide_input/main
 
 jupyter trust Test_Interact.ipynb
