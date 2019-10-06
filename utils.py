@@ -3,15 +3,13 @@ import datetime
 import numpy as np
 
 
-FY_DICT = {
-    'fy_16': [pd.to_datetime('2015-07-01 00:00:00'), pd.to_datetime('2016-06-30 00:00:00')],
-    'fy_17': [pd.to_datetime('2016-07-01 00:00:00'), pd.to_datetime('2017-06-30 00:00:00')],
-    'fy_18': [pd.to_datetime('2017-07-01 00:00:00'), pd.to_datetime('2018-06-30 00:00:00')],
-    'fy_19': [pd.to_datetime('2018-07-01 00:00:00'), pd.to_datetime('2019-06-30 00:00:00')],
-    'fy_20': [pd.to_datetime('2019-07-01 00:00:00'), pd.to_datetime('2020-06-30 00:00:00')]
-}
+FY_START_MONTH = '-07-01 00:00:00'
+FY_END_MONTH = '-06-30 00:00:00'
 
-def create_fy_columns(df, col_name):
+ALL = 'ALL'
+
+
+def create_fy_columns(df, fy_dict, col_name):
     '''
     Creates binary columns that identify if a record was created within a given fiscal year
     
@@ -25,31 +23,39 @@ def create_fy_columns(df, col_name):
     '''
     
     df[col_name] = pd.to_datetime(df[col_name])
-    
-    for key,val in FY_DICT.items():
+    for key,val in fy_dict.items():
         start = val[0]
         end = val[1]
         df[key] = np.where(((df[col_name] >= start) & (df[col_name] <= end)), 1, 0)
-        df['until_' + key] = np.where((df[col_name] <= end), 1, 0)
+        if datetime.datetime.now().year + 1 == end.year:
+            fy_total_key = 'As of Today'
+            print('true')
+        else:
+            fy_total_key = 'End_of_' + key
+        df[fy_total_key] = np.where((df[col_name] <= end), 1, 0)
     
     return df
 
-# filter for Fiscal Year 2019
 
-def apply_date_mask(df, col_name, fy=True, 
-                    start_date='2018-07-01 00:00:00', end_date='2019-06-30 00:00:00'):
-    
-    start_date = pd.to_datetime(start_date)
-    end_date = pd.to_datetime(end_date)
-    
-    if fy:
-        mask = (df[col_name] >= start_date) & (df[col_name] <= end_date)
-    else:
-        mask = df[col_name] <= end_date
-        
-    df = df.loc[mask]
-    
-    return df
+def build_fy_dictionary(df, col_name):
+    print('its working still for sure foo0000oor sure')
+    fy_dict = {}
+    fy_filter_list = []
+    for year in np.sort(df[col_name].dt.year.unique()):
+        yr = int(year)
+        start = str(yr) + FY_START_MONTH
+        end_yr = yr + 1
+        end = str(end_yr) + FY_END_MONTH
+        key = 'FY_' + str(end_yr)
+        fy_dict[key] = [pd.to_datetime(start), pd.to_datetime(end)]
+        if datetime.datetime.now().year + 1 == end_yr:
+            filter_key = 'As of Today'
+        else:
+            filter_key = 'End_of_' + key
+        fy_filter_list.append(filter_key)
+
+    return fy_dict, fy_filter_list
+
 
 # clean date columns
 
@@ -58,3 +64,11 @@ def date_transformation(df, col_name):
     df[col_name] = pd.to_datetime(df[col_name])
     
     return df
+
+
+def unique_sorted_values_plus_ALL(array, all=True):
+    unique = array.unique().tolist()
+    unique.sort()
+    if all:
+        unique.insert(0, ALL)
+    return unique
