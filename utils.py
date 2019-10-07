@@ -29,7 +29,6 @@ def create_fy_columns(df, fy_dict, col_name):
         df[key] = np.where(((df[col_name] >= start) & (df[col_name] <= end)), 1, 0)
         if datetime.datetime.now().year + 1 == end.year:
             fy_total_key = 'As of Today'
-            print('true')
         else:
             fy_total_key = 'End_of_' + key
         df[fy_total_key] = np.where((df[col_name] <= end), 1, 0)
@@ -38,7 +37,6 @@ def create_fy_columns(df, fy_dict, col_name):
 
 
 def build_fy_dictionary(df, col_name):
-    print('its working still for sure foo0000oor sure')
     fy_dict = {}
     fy_filter_list = []
     for year in np.sort(df[col_name].dt.year.unique()):
